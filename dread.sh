@@ -1,26 +1,23 @@
 #!/bin/bash
 
-# Colors
-GREEN='\033[0;32m'
+# Kolorowe oznaczenia
 WHITE='\033[1;37m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+GREEN='\033[1;32m'
+RED='\033[1;31m'
+NC='\033[0m' # Bez koloru
 
-function show_banner() {
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Dread is active${NC}"
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Version: 1.0${NC}"
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Type 'drdhelp' to display available commands${NC}"
+# Funkcja pobierająca nazwę urządzenia na podstawie adresu IP
+function get_device_name() {
+    local ip="$1"
+    local name=""
+
+    # Sprawdzanie nazwy urządzenia za pomocą nslookup
+    name=$(nslookup "$ip" | awk -F'= ' '/name =/{print $2}' | awk '{print $1}')
+
+    echo "$name"
 }
 
-function drdhelp() {
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Available commands:${NC}"
-    echo -e "${WHITE}  scannw - Scans the network and displays the IP addresses and names of devices${NC}"
-    echo -e "${WHITE}  cnctip <IP> - Connects to the device with the specified IP address${NC}"
-    echo -e "${WHITE}  uncnctip - Disconnects from the connected device${NC}"
-    echo -e "${WHITE}  dvcinfo <IP> - Displays information about the device with the specified IP address${NC}"
-    echo -e "${WHITE}  tsmsg <IP> - Sends a test message to the device with the specified IP address${NC}"
-}
-
+# Komenda scannw - skanowanie sieci i wyświetlanie adresów IP i nazw urządzeń
 function scannw() {
     echo -e "${WHITE}[${GREEN}Dread${WHITE}] Scanning the network...${NC}"
     
@@ -36,22 +33,7 @@ function scannw() {
     done
 }
 
-function cnctip() {
-    local ip="$1"
-
-    if [[ -z "$ip" ]]; then
-        echo -e "${WHITE}[${RED}Dread${WHITE}] No IP address provided.${NC}"
-        return
-    fi
-
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Connecting to device at IP address: ${ip}${NC}"
-    # Tutaj możesz umieścić kod odpowiedzialny za nawiązanie połączenia z urządzeniem o podanym adresie IP
-}
-function uncnctip() {
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Disconnecting from the connected device${NC}"
-    # Tutaj dodaj kod odłączający się od aktualnie połączonego urządzenia
-}
-
+# Komenda dvcinfo - wyświetlanie informacji o urządzeniu na podstawie adresu IP
 function dvcinfo() {
     local ip="$1"
 
@@ -66,6 +48,20 @@ function dvcinfo() {
     echo # Pusta linia dla czytelności
 }
 
+# Komenda cnctip - połączenie z urządzeniem na podstawie adresu IP
+function cnctip() {
+    local ip="$1"
+
+    if [[ -z "$ip" ]]; then
+        echo -e "${WHITE}[${RED}Dread${WHITE}] No IP address provided.${NC}"
+        return
+    fi
+
+    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Connecting to device at IP address: ${ip}${NC}"
+    # Tutaj możesz umieścić kod odpowiedzialny za nawiązanie połączenia z urządzeniem o podanym adresie IP
+}
+
+# Komenda tsmsg - wysłanie testowej wiadomości na urządzenie na podstawie adresu IP
 function tsmsg() {
     local ip="$1"
     local message="$2"
@@ -84,35 +80,42 @@ function tsmsg() {
     # Tutaj możesz umieścić kod odpowiedzialny za wysłanie testowej wiadomości do urządzenia o podanym adresie IP
 }
 
-# Główna pętla programu
-while true; do
-    show_banner
+# Wyświetlanie informacji o Dread po uruchomieniu
+echo -e "${WHITE}[${GREEN}Dread${WHITE}] Dread is active${NC}"
+echo -e "${WHITE}[${GREEN}Dread${WHITE}] Version: 1.0${NC}"
+echo -e "${WHITE}[${GREEN}Dread${WHITE}] Type 'drdhelp' to display available commands${NC}"
 
-    read -p "[Dread] Enter a command: " command args
+# Pętla główna programu
+while true; do
+    read -p "${WHITE}[${GREEN}Dread${WHITE}] Enter a command: ${NC}" command
 
     case $command in
-        drdhelp)
-            drdhelp
+        "drdhelp")
+            echo -e "Available commands:"
+            echo -e "  ${GREEN}scannw${NC} - Scans the network and displays the IP addresses of devices along with their names."
+            echo -e "  ${GREEN}dvcinfo <IP>${NC} - Displays information about the device with the specified IP address."
+            echo -e "  ${GREEN}cnctip <IP>${NC} - Connects to the device with the specified IP address."
+            echo -e "  ${GREEN}tsmsg <IP> <message>${NC} - Sends a test message to the device with the specified IP address."
             ;;
-        scannw)
+        "scannw")
             scannw
             ;;
-        cnctip)
-            cnctip $args
+        "dvcinfo "*)
+            ip="${command#* }"
+            dvcinfo "$ip"
             ;;
-        uncnctip)
-            uncnctip
+        "cnctip "*)
+            ip="${command#* }"
+            cnctip "$ip"
             ;;
-        dvcinfo)
-            dvcinfo $args
-            ;;
-        tsmsg)
-            tsmsg $args
+        "tsmsg "*)
+            ip="${command#* }"
+            message="${ip#* }"
+            ip="${ip%% *}"
+            tsmsg "$ip" "$message"
             ;;
         *)
-            echo -e "${WHITE}[${RED}Dread${WHITE}] Unknown command. Type 'drdhelp' to display available commands.${NC}"
+            echo -e "${WHITE}[${RED}Dread${WHITE}] Unknown command.${NC}"
             ;;
     esac
-
-    echo # Pusta linia dla czytelności
 done
