@@ -37,24 +37,51 @@ function scannw() {
 }
 
 function cnctip() {
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Connecting to device with IP: $1${NC}"
-    # Tutaj dodaj kod łączący się z urządzeniem o podanym IP
-    # Przykład: ssh $1
-}
+    local ip="$1"
 
+    if [[ -z "$ip" ]]; then
+        echo -e "${WHITE}[${RED}Dread${WHITE}] No IP address provided.${NC}"
+        return
+    fi
+
+    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Connecting to device at IP address: ${ip}${NC}"
+    # Tutaj możesz umieścić kod odpowiedzialny za nawiązanie połączenia z urządzeniem o podanym adresie IP
+}
 function uncnctip() {
     echo -e "${WHITE}[${GREEN}Dread${WHITE}] Disconnecting from the connected device${NC}"
     # Tutaj dodaj kod odłączający się od aktualnie połączonego urządzenia
 }
 
 function dvcinfo() {
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Getting information for device with IP: $1${NC}"
-    # Tutaj dodaj kod wyświetlający informacje o urządzeniu o podanym IP
+    local ip="$1"
+
+    if [[ -z "$ip" ]]; then
+        echo -e "${WHITE}[${RED}Dread${WHITE}] No IP address provided.${NC}"
+        return
+    fi
+
+    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Device Information:${NC}"
+    echo -e "IP Address: ${ip}"
+    echo -e "Device Name: $(get_device_name "$ip")"
+    echo # Pusta linia dla czytelności
 }
 
 function tsmsg() {
-    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Sending a test message to device with IP: $1${NC}"
-    # Tutaj dodaj kod wysyłający testową wiadomość do urządzenia o podanym IP
+    local ip="$1"
+    local message="$2"
+
+    if [[ -z "$ip" ]]; then
+        echo -e "${WHITE}[${RED}Dread${WHITE}] No IP address provided.${NC}"
+        return
+    fi
+
+    if [[ -z "$message" ]]; then
+        echo -e "${WHITE}[${RED}Dread${WHITE}] No message provided.${NC}"
+        return
+    fi
+
+    echo -e "${WHITE}[${GREEN}Dread${WHITE}] Sending test message to device at IP address: ${ip}${NC}"
+    # Tutaj możesz umieścić kod odpowiedzialny za wysłanie testowej wiadomości do urządzenia o podanym adresie IP
 }
 
 # Główna pętla programu
