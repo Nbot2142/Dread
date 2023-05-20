@@ -23,7 +23,17 @@ function drdhelp() {
 
 function scannw() {
     echo -e "${WHITE}[${GREEN}Dread${WHITE}] Scanning the network...${NC}"
-    sudo arp-scan --localnet --interface eth0  # Zastąp "eth0" nazwą swojego interfejsu sieciowego
+    
+    # Pobieranie listy dostępnych interfejsów sieciowych
+    interfaces=$(ip -o link show | awk -F': ' '{print $2}')
+
+    # Iteracja przez wszystkie interfejsy i skanowanie sieci
+    for interface in $interfaces; do
+        echo -e "${WHITE}[${GREEN}Dread${WHITE}] Scanning network on interface: ${interface}${NC}"
+        sudo arp-scan --localnet --interface "$interface"
+        echo -e "${WHITE}[${GREEN}Dread${WHITE}] Network scanning on interface ${interface} completed.${NC}"
+        echo # Pusta linia dla czytelności
+    done
 }
 
 function cnctip() {
